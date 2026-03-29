@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import com.example.jwt.jwt.JWTFilter;
 import com.example.jwt.jwt.JWTUtil;
 import com.example.jwt.jwt.LoginFilter;
+import com.example.jwt.repository.RefreshRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -29,9 +30,12 @@ public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
+    private final RefreshRepository refreshRepository;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
 		this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
     }
 
     @Bean
@@ -95,7 +99,7 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 
 				//세션 설정
         http
